@@ -2,7 +2,7 @@
   "name": "Correria — Running App",
   "short_name": "Correria",
   "description": "Sua planilha de corrida pessoal",
-  "start_url": "./correria.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0a0a0a",
   "theme_color": "#0a0a0a",
