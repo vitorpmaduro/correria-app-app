@@ -1,0 +1,1002 @@
+bash
+
+cat > /mnt/user-data/outputs/correria.html << 'HTMLEOF'
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Correria">
+<title>Correria — Running App</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black: #0a0a0a;
+  --white: #f5f3ef;
+  --off: #e8e5de;
+  --gray1: #1a1a1a;
+  --gray2: #2a2a2a;
+  --gray3: #444;
+  --gray4: #888;
+  --gray5: #bbb;
+  --accent: #e8e5de;
+  --green: #2d5a1b;
+  --green-light: #d4edbc;
+  --blue-light: #d0e8fb;
+  --blue-dark: #0f3d6b;
+  --amber-light: #faebd0;
+  --amber-dark: #6b3d0f;
+  --purple-light: #e8e0fb;
+  --purple-dark: #3d1f6b;
+  --coral-light: #fbe0d8;
+  --coral-dark: #6b2010;
+  --r: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--black);
+  color: var(--white);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- TOPBAR ---- */
+.topbar {
+  background: var(--black);
+  padding: 14px 16px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--gray2);
+  flex-shrink: 0;
+}
+.logo-area { display: flex; align-items: center; gap: 10px; }
+.logo-svg { width: 130px; height: 36px; }
+.topbar-actions { display: flex; gap: 6px; }
+.icon-btn {
+  background: var(--gray2);
+  border: none;
+  border-radius: 8px;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--gray5);
+  transition: background 0.15s, color 0.15s;
+}
+.icon-btn:hover { background: var(--gray3); color: var(--white); }
+.icon-btn.active { color: var(--white); background: var(--gray3); }
+.icon-btn svg { width: 18px; height: 18px; stroke-width: 1.8; fill: none; stroke: currentColor; }
+
+/* ---- SCROLL AREA ---- */
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 14px 14px 80px;
+}
+
+/* ---- BOTTOM NAV ---- */
+.bottom-nav {
+  background: var(--gray1);
+  border-top: 1px solid var(--gray2);
+  display: flex;
+  flex-shrink: 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 0 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--gray4);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  transition: color 0.15s;
+}
+.nav-btn svg { width: 20px; height: 20px; stroke-width: 1.8; fill: none; stroke: currentColor; }
+.nav-btn.active { color: var(--white); }
+.nav-btn.active svg { stroke: var(--white); }
+
+/* ---- SCREENS ---- */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ---- WEEK SELECTOR ---- */
+.week-selector {
+  display: flex;
+  align-items: center;
+  background: var(--gray1);
+  border-radius: var(--r);
+  padding: 8px 12px;
+  margin-bottom: 14px;
+  border: 1px solid var(--gray2);
+}
+.week-selector span {
+  flex: 1;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--white);
+}
+.week-arrow {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--gray4);
+  padding: 2px 4px;
+  display: flex; align-items: center;
+}
+.week-arrow svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
+.week-arrow:hover { color: var(--white); }
+
+/* ---- DAY ROWS ---- */
+.day-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  background: var(--gray1);
+  border: 1px solid var(--gray2);
+  border-radius: var(--r);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.day-row:hover { background: var(--gray2); }
+.day-row.today { border-color: var(--white); border-width: 1.5px; }
+.day-row.done { border-color: #3a6e22; }
+
+.day-dot {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 12px; font-weight: 600;
+  border: 1.5px solid var(--gray3);
+}
+.day-dot.rest { background: var(--gray2); color: var(--gray4); border-color: var(--gray3); }
+.day-dot.run-dot { background: var(--gray2); color: var(--white); border-color: var(--gray3); }
+.day-dot.done-dot { background: #1e3d10; color: #8ecf60; border-color: #3a6e22; }
+.day-dot.today-dot { background: var(--white); color: var(--black); border-color: var(--white); }
+.day-dot.future-dot { background: transparent; color: var(--gray4); border-color: var(--gray3); border-style: dashed; }
+
+.day-info { flex: 1; min-width: 0; }
+.day-name { font-size: 14px; font-weight: 600; color: var(--white); }
+.day-workout { font-size: 12px; color: var(--gray4); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.day-date-str { font-size: 11px; color: var(--gray4); margin-top: 2px; }
+
+.day-badge {
+  font-size: 11px; font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.badge-rest { background: var(--gray2); color: var(--gray4); border: 1px solid var(--gray3); }
+.badge-run { background: rgba(255,255,255,0.08); color: var(--gray5); border: 1px solid var(--gray3); }
+.badge-today { background: var(--white); color: var(--black); }
+.badge-done { background: #1e3d10; color: #8ecf60; border: 1px solid #3a6e22; }
+
+/* ---- WORKOUT VIEW ---- */
+.back-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: transparent; border: none;
+  color: var(--gray4); font-size: 13px;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  padding: 0; margin-bottom: 16px;
+}
+.back-btn:hover { color: var(--white); }
+.back-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+.workout-header-card {
+  background: var(--gray1);
+  border: 1px solid var(--gray2);
+  border-radius: var(--r);
+  padding: 16px;
+  margin-bottom: 10px;
+}
+.workout-big-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  color: var(--white);
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+.workout-date-line {
+  font-size: 12px;
+  color: var(--gray4);
+  margin-top: 4px;
+  text-transform: capitalize;
+}
+.workout-desc { font-size: 13px; color: var(--gray5); margin-top: 6px; }
+
+.block-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.block-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 13px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.block-label { font-weight: 600; font-size: 13px; }
+.block-dur { font-size: 12px; opacity: 0.75; }
+
+.b-warmup { background: var(--blue-light); color: var(--blue-dark); }
+.b-run { background: var(--green-light); color: var(--green); }
+.b-rest { background: var(--off); color: var(--gray3); }
+.b-cool { background: var(--purple-light); color: var(--purple-dark); }
+.b-stretch { background: var(--amber-light); color: var(--amber-dark); }
+.b-repeat { background: var(--coral-light); color: var(--coral-dark); font-style: italic; font-size: 12px; }
+
+/* ---- LOG FORM ---- */
+.log-card {
+  background: var(--gray1);
+  border: 1px solid var(--gray2);
+  border-radius: var(--r);
+  padding: 16px;
+  margin-bottom: 10px;
+}
+.log-title { font-size: 12px; font-weight: 600; color: var(--gray4); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.field-block { display: flex; flex-direction: column; gap: 4px; }
+.field-label { font-size: 11px; color: var(--gray4); font-weight: 500; }
+.field-input {
+  background: var(--gray2);
+  border: 1px solid var(--gray3);
+  border-radius: 8px;
+  padding: 9px 11px;
+  font-size: 14px;
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  width: 100%;
+}
+.field-input:focus { outline: none; border-color: var(--gray5); }
+.field-input::placeholder { color: var(--gray4); }
+.field-select {
+  background: var(--gray2);
+  border: 1px solid var(--gray3);
+  border-radius: 8px;
+  padding: 9px 11px;
+  font-size: 14px;
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  width: 100%;
+  appearance: none;
+}
+.field-select option { background: var(--gray2); color: var(--white); }
+.field-textarea {
+  background: var(--gray2);
+  border: 1px solid var(--gray3);
+  border-radius: 8px;
+  padding: 9px 11px;
+  font-size: 13px;
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  width: 100%;
+  resize: vertical;
+  min-height: 70px;
+}
+.field-textarea:focus { outline: none; border-color: var(--gray5); }
+
+.check-btn {
+  width: 100%; padding: 14px;
+  border: none; border-radius: var(--r);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px; letter-spacing: 0.08em;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  transition: opacity 0.15s;
+  margin-bottom: 8px;
+}
+.check-btn:hover { opacity: 0.9; }
+.check-btn.todo { background: var(--white); color: var(--black); }
+.check-btn.done { background: #1e3d10; color: #8ecf60; border: 1px solid #3a6e22; }
+.check-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+.undo-btn {
+  width: 100%; padding: 10px;
+  background: transparent; border: 1px solid var(--gray3);
+  border-radius: var(--r); color: var(--gray4);
+  font-size: 13px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+}
+.undo-btn:hover { color: var(--white); border-color: var(--gray5); }
+
+/* ---- HISTORY ---- */
+.stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.stat-box { background: var(--gray1); border: 1px solid var(--gray2); border-radius: var(--r); padding: 14px; }
+.stat-label { font-size: 11px; color: var(--gray4); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 30px; color: var(--white); letter-spacing: 0.04em; }
+.stat-sub { font-size: 11px; color: var(--gray4); margin-top: 2px; }
+
+.hist-item { background: var(--gray1); border: 1px solid var(--gray2); border-radius: var(--r); padding: 14px; margin-bottom: 8px; }
+.hist-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+.hist-name { font-size: 14px; font-weight: 600; color: var(--white); }
+.hist-date { font-size: 12px; color: var(--gray4); }
+.hist-workout { font-size: 12px; color: var(--gray5); margin-bottom: 8px; }
+.hist-meta { display: flex; gap: 14px; flex-wrap: wrap; }
+.hist-kv { font-size: 12px; color: var(--gray4); }
+.hist-kv span { color: var(--white); font-weight: 600; }
+.hist-note { font-size: 12px; color: var(--gray4); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--gray2); font-style: italic; }
+
+/* ---- NOTIFICATIONS ---- */
+.notif-card { background: var(--gray1); border: 1px solid var(--gray2); border-radius: var(--r); padding: 16px; margin-bottom: 10px; }
+.notif-card-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.06em; margin-bottom: 12px; }
+.notif-status {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-radius: 8px;
+  font-size: 13px; font-weight: 500;
+  margin-bottom: 12px;
+}
+.notif-on { background: #1e3d10; color: #8ecf60; }
+.notif-off { background: var(--gray2); color: var(--gray4); }
+.notif-status svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+.notif-desc { font-size: 12px; color: var(--gray4); margin-bottom: 12px; line-height: 1.5; }
+.prim-btn {
+  width: 100%; padding: 12px;
+  background: var(--white); color: var(--black);
+  border: none; border-radius: var(--r);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px; letter-spacing: 0.06em;
+  cursor: pointer; transition: opacity 0.15s;
+}
+.prim-btn:hover { opacity: 0.88; }
+.sec-btn {
+  width: 100%; padding: 10px;
+  background: transparent; border: 1px solid var(--gray3);
+  border-radius: var(--r); color: var(--gray4);
+  font-size: 13px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  margin-top: 8px;
+}
+.sec-btn:hover { color: var(--white); border-color: var(--gray5); }
+
+/* ---- EDIT ---- */
+.section-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px; margin-top: 16px;
+}
+.section-head:first-child { margin-top: 0; }
+.section-title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 0.06em; color: var(--white); }
+.edit-card { background: var(--gray1); border: 1px solid var(--gray2); border-radius: var(--r); padding: 14px; margin-bottom: 8px; }
+.edit-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.edit-row:last-child { margin-bottom: 0; }
+.edit-label { font-size: 12px; color: var(--gray4); font-weight: 500; min-width: 68px; flex-shrink: 0; }
+.edit-input {
+  flex: 1; background: var(--gray2); border: 1px solid var(--gray3);
+  border-radius: 8px; padding: 7px 10px;
+  font-size: 13px; color: var(--white);
+  font-family: 'DM Sans', sans-serif; min-width: 0;
+}
+.edit-select {
+  flex: 1; background: var(--gray2); border: 1px solid var(--gray3);
+  border-radius: 8px; padding: 7px 10px;
+  font-size: 13px; color: var(--white);
+  font-family: 'DM Sans', sans-serif; min-width: 0; appearance: none;
+}
+.edit-select option { background: var(--gray2); }
+.blk-row { display: grid; grid-template-columns: minmax(0,2fr) minmax(0,1fr) 28px; gap: 6px; margin-bottom: 6px; align-items: center; }
+.blk-input { background: var(--gray2); border: 1px solid var(--gray3); border-radius: 7px; padding: 6px 8px; font-size: 12px; color: var(--white); font-family: 'DM Sans', sans-serif; width: 100%; }
+.del-btn { background: transparent; border: none; cursor: pointer; color: var(--gray4); padding: 0; display: flex; align-items: center; }
+.del-btn:hover { color: #e24b4b; }
+.del-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+.add-block-btn {
+  width: 100%; padding: 7px;
+  background: transparent; border: 1px dashed var(--gray3);
+  border-radius: 8px; color: var(--gray4);
+  font-size: 12px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; margin-top: 6px;
+}
+.add-block-btn:hover { border-color: var(--gray5); color: var(--white); }
+.add-week-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%; padding: 10px;
+  background: transparent; border: 1px dashed var(--gray3);
+  border-radius: var(--r); color: var(--gray4);
+  font-size: 13px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; margin-top: 4px;
+}
+.add-week-btn:hover { border-color: var(--gray5); color: var(--white); }
+.add-week-btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; }
+.del-sm-btn { background: transparent; border: none; cursor: pointer; color: var(--gray4); padding: 4px; display: flex; align-items: center; }
+.del-sm-btn:hover { color: #e24b4b; }
+.del-sm-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+/* ---- SETUP ---- */
+.setup-wrap {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: var(--black); padding: 24px;
+}
+.setup-box {
+  background: var(--gray1); border: 1px solid var(--gray2);
+  border-radius: 16px; padding: 28px 22px; width: 100%; max-width: 340px;
+}
+.setup-logo { margin-bottom: 20px; }
+.setup-sub { font-size: 13px; color: var(--gray4); margin-bottom: 20px; line-height: 1.5; }
+.setup-label { font-size: 12px; color: var(--gray4); font-weight: 500; display: block; margin-bottom: 6px; }
+.setup-date-input {
+  width: 100%; background: var(--gray2); border: 1px solid var(--gray3);
+  border-radius: 10px; padding: 12px 14px;
+  font-size: 15px; color: var(--white);
+  font-family: 'DM Sans', sans-serif; margin-bottom: 16px;
+  color-scheme: dark;
+}
+.setup-date-input:focus { outline: none; border-color: var(--gray5); }
+
+/* ---- REST VIEW ---- */
+.rest-view {
+  background: var(--gray1); border: 1px solid var(--gray2);
+  border-radius: var(--r); padding: 28px 16px;
+  text-align: center; margin-bottom: 10px;
+}
+.rest-icon { font-size: 36px; margin-bottom: 12px; }
+.rest-title { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 0.06em; color: var(--white); }
+.rest-msg { font-size: 13px; color: var(--gray4); margin-top: 6px; line-height: 1.5; }
+
+/* ---- SCROLLBAR ---- */
+.scroll-area::-webkit-scrollbar { width: 3px; }
+.scroll-area::-webkit-scrollbar-track { background: transparent; }
+.scroll-area::-webkit-scrollbar-thumb { background: var(--gray3); border-radius: 2px; }
+
+/* ---- EMPTY ---- */
+.empty-msg { text-align: center; padding: 2rem 1rem; color: var(--gray4); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<!-- SETUP SCREEN -->
+<div id="screen-setup" style="display:flex;min-height:100vh;align-items:center;justify-content:center;background:var(--black);padding:24px;">
+  <div class="setup-box">
+    <div class="setup-logo">
+      <svg viewBox="0 0 220 60" xmlns="http://www.w3.org/2000/svg" style="width:180px;height:50px">
+        <line x1="30" y1="48" x2="190" y2="8" stroke="#f5f3ef" stroke-width="1.5"/>
+        <line x1="30" y1="52" x2="190" y2="12" stroke="#f5f3ef" stroke-width="1.5"/>
+        <polygon points="190,5 205,14 185,18" fill="#f5f3ef"/>
+        <text x="28" y="56" font-family="'Bebas Neue',sans-serif" font-size="30" fill="#f5f3ef" letter-spacing="2">CORRERIA</text>
+        <text x="28" y="68" font-family="'DM Sans',sans-serif" font-size="8" fill="#888" letter-spacing="1">PLANILHA DE CORRIDA · RUNNING APP</text>
+      </svg>
+    </div>
+    <p class="setup-sub">Escolha a data de início do seu plano para organizar os treinos no calendário.</p>
+    <label class="setup-label" for="setup-date-in">Data de início</label>
+    <input type="date" id="setup-date-in" class="setup-date-input">
+    <button class="prim-btn" onclick="startPlan()">Começar agora</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app-wrap" style="display:none;flex-direction:column;height:100vh;">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="logo-area">
+      <svg class="logo-svg" viewBox="0 0 200 44" xmlns="http://www.w3.org/2000/svg">
+        <line x1="8" y1="36" x2="155" y2="6" stroke="#f5f3ef" stroke-width="1.4"/>
+        <line x1="8" y1="40" x2="155" y2="10" stroke="#f5f3ef" stroke-width="1.4"/>
+        <polygon points="155,3 168,11 150,16" fill="#f5f3ef"/>
+        <text x="6" y="42" font-family="'Bebas Neue',sans-serif" font-size="24" fill="#f5f3ef" letter-spacing="2">CORRERIA</text>
+      </svg>
+    </div>
+    <div class="topbar-actions">
+      <button class="icon-btn" id="bell-btn" onclick="navTo('notif')" aria-label="Notificações">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+      </button>
+      <button class="icon-btn" onclick="navTo('edit')" aria-label="Editar plano">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- SCROLL AREA -->
+  <div class="scroll-area" id="scroll-area">
+
+    <!-- SCREEN: HOME -->
+    <div id="screen-home" class="screen active">
+      <div class="week-selector">
+        <button class="week-arrow" onclick="changeWeek(-1)" aria-label="Semana anterior">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span id="week-label">Semana 1</span>
+        <button class="week-arrow" onclick="changeWeek(1)" aria-label="Próxima semana">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+      <div id="days-list"></div>
+    </div>
+
+    <!-- SCREEN: DAY -->
+    <div id="screen-day" class="screen">
+      <button class="back-btn" onclick="navTo('home')">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Voltar
+      </button>
+      <div id="day-content"></div>
+    </div>
+
+    <!-- SCREEN: HISTORY -->
+    <div id="screen-history" class="screen">
+      <div class="stats-row" id="stats-row"></div>
+      <div id="history-list"></div>
+    </div>
+
+    <!-- SCREEN: NOTIF -->
+    <div id="screen-notif" class="screen">
+      <div id="notif-content"></div>
+    </div>
+
+    <!-- SCREEN: EDIT -->
+    <div id="screen-edit" class="screen">
+      <div id="edit-content"></div>
+    </div>
+
+  </div><!-- /scroll-area -->
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" id="nav-home" onclick="navTo('home')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Plano
+    </button>
+    <button class="nav-btn" id="nav-history" onclick="navTo('history')">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Histórico
+    </button>
+    <button class="nav-btn" id="nav-notif" onclick="navTo('notif')">
+      <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+      Alertas
+    </button>
+    <button class="nav-btn" id="nav-edit" onclick="navTo('edit')">
+      <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Editar
+    </button>
+  </nav>
+</div>
+
+<script>
+const BC={aquecimento:'b-warmup',corrida:'b-run',caminhada:'b-warmup',descanso:'b-rest',encerramento:'b-cool',alongamento:'b-stretch',intervalo:'b-rest',repetir:'b-repeat'};
+
+function defPlan(){return{weeks:[
+  {label:'Semana 1',days:[
+    {name:'Segunda',type:'run',wid:'w1'},{name:'Terça',type:'rest'},
+    {name:'Quarta',type:'run',wid:'w2'},{name:'Quinta',type:'rest'},
+    {name:'Sexta',type:'run',wid:'w3'},{name:'Sábado',type:'rest'},{name:'Domingo',type:'rest'}
+  ]},
+  {label:'Semana 2',days:[
+    {name:'Segunda',type:'run',wid:'w4'},{name:'Terça',type:'rest'},
+    {name:'Quarta',type:'run',wid:'w5'},{name:'Quinta',type:'rest'},
+    {name:'Sexta',type:'run',wid:'w6'},{name:'Sábado',type:'rest'},{name:'Domingo',type:'rest'}
+  ]}
+],workouts:{
+  w1:{name:'Corrida + Caminhada',desc:'Primeiro treino de evolução',blocks:[
+    {t:'alongamento',l:'Alongamento inicial',d:'5 min'},
+    {t:'aquecimento',l:'Caminhada aquecimento',d:'3 min'},
+    {t:'corrida',l:'Corrida leve',d:'250m'},
+    {t:'descanso',l:'Descanso',d:'90s'},
+    {t:'corrida',l:'Corrida leve',d:'250m'},
+    {t:'descanso',l:'Descanso',d:'90s'},
+    {t:'corrida',l:'Corrida leve',d:'250m'},
+    {t:'repetir',l:'Repetir bloco corrida 3x'},
+    {t:'encerramento',l:'Caminhada encerramento',d:'3 min'},
+    {t:'alongamento',l:'Alongamento final',d:'5 min'},
+  ]},
+  w2:{name:'Corrida contínua',desc:'Foco em ritmo constante',blocks:[
+    {t:'alongamento',l:'Alongamento inicial',d:'5 min'},
+    {t:'aquecimento',l:'Caminhada aquecimento',d:'3 min'},
+    {t:'corrida',l:'Corrida contínua',d:'15 min'},
+    {t:'encerramento',l:'Caminhada encerramento',d:'3 min'},
+    {t:'alongamento',l:'Alongamento final',d:'5 min'},
+  ]},
+  w3:{name:'Intervalado',desc:'Tiros de velocidade',blocks:[
+    {t:'alongamento',l:'Alongamento inicial',d:'5 min'},
+    {t:'aquecimento',l:'Caminhada aquecimento',d:'5 min'},
+    {t:'corrida',l:'Tiro rápido',d:'1 min'},
+    {t:'descanso',l:'Trote leve',d:'2 min'},
+    {t:'repetir',l:'Repetir 4x'},
+    {t:'encerramento',l:'Caminhada encerramento',d:'5 min'},
+    {t:'alongamento',l:'Alongamento final',d:'5 min'},
+  ]},
+  w4:{name:'Corrida longa',desc:'Resistência aeróbica',blocks:[
+    {t:'alongamento',l:'Alongamento inicial',d:'5 min'},
+    {t:'aquecimento',l:'Caminhada aquecimento',d:'3 min'},
+    {t:'corrida',l:'Corrida longa',d:'25 min'},
+    {t:'encerramento',l:'Caminhada encerramento',d:'3 min'},
+    {t:'alongamento',l:'Alongamento final',d:'5 min'},
+  ]},
+  w5:{name:'Intervalado avançado',desc:'Mais tiros',blocks:[
+    {t:'aquecimento',l:'Caminhada aquecimento',d:'5 min'},
+    {t:'corrida',l:'Tiro',d:'90s'},
+    {t:'descanso',l:'Descanso',d:'90s'},
+    {t:'repetir',l:'Repetir 5x'},
+    {t:'encerramento',l:'Caminhada encerramento',d:'5 min'},
+  ]},
+  w6:{name:'Corrida + Caminhada',desc:'Consolidação da semana',blocks:[
+    {t:'aquecimento',l:'Caminhada aquecimento',d:'3 min'},
+    {t:'corrida',l:'Corrida',d:'500m'},
+    {t:'descanso',l:'Caminhada',d:'1 min'},
+    {t:'corrida',l:'Corrida',d:'500m'},
+    {t:'repetir',l:'Repetir 3x'},
+    {t:'encerramento',l:'Caminhada encerramento',d:'3 min'},
+  ]}
+}}}
+
+let plan=JSON.parse(localStorage.getItem('correria_plan')||'null')||defPlan();
+let logs=JSON.parse(localStorage.getItem('correria_logs')||'{}');
+let startDate=localStorage.getItem('correria_start')||null;
+let notif=JSON.parse(localStorage.getItem('correria_notif')||'{"on":false,"time":"07:00"}');
+let curWeek=0;
+let curDay=null;
+let curScreen='home';
+
+function save(){
+  localStorage.setItem('correria_plan',JSON.stringify(plan));
+  localStorage.setItem('correria_logs',JSON.stringify(logs));
+  localStorage.setItem('correria_notif',JSON.stringify(notif));
+}
+
+function getDate(wi,di){
+  if(!startDate)return null;
+  const b=new Date(startDate+'T12:00:00');
+  b.setDate(b.getDate()+wi*7+di);
+  return b;
+}
+function fmtShort(d){return d?d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):''}
+function fmtFull(d){if(!d)return'';const s=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});return s.charAt(0).toUpperCase()+s.slice(1);}
+function isToday(d){if(!d)return false;const t=new Date();return d.getDate()===t.getDate()&&d.getMonth()===t.getMonth()&&d.getFullYear()===t.getFullYear();}
+function isPast(d){if(!d)return false;const t=new Date();t.setHours(0,0,0,0);const dd=new Date(d);dd.setHours(0,0,0,0);return dd<t;}
+function lk(wi,di){return`${wi}_${di}`;}
+
+function startPlan(){
+  const v=document.getElementById('setup-date-in').value;
+  if(!v){alert('Escolha uma data.');return;}
+  startDate=v;
+  localStorage.setItem('correria_start',v);
+  document.getElementById('screen-setup').style.display='none';
+  const aw=document.getElementById('app-wrap');
+  aw.style.display='flex';
+  findCurWeek();
+  renderHome();
+}
+
+function findCurWeek(){
+  if(!startDate)return;
+  const today=new Date();today.setHours(0,0,0,0);
+  for(let wi=0;wi<plan.weeks.length;wi++){
+    for(let di=0;di<7;di++){
+      const d=getDate(wi,di);if(!d)continue;
+      const dd=new Date(d);dd.setHours(0,0,0,0);
+      if(dd.getTime()===today.getTime()){curWeek=wi;return;}
+    }
+  }
+}
+
+function navTo(screen){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+screen).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const nb=document.getElementById('nav-'+screen);
+  if(nb)nb.classList.add('active');
+  document.getElementById('scroll-area').scrollTop=0;
+  curScreen=screen;
+  if(screen==='home')renderHome();
+  if(screen==='history')renderHistory();
+  if(screen==='notif')renderNotif();
+  if(screen==='edit')renderEdit();
+}
+
+function changeWeek(d){
+  curWeek=Math.max(0,Math.min(plan.weeks.length-1,curWeek+d));
+  renderHome();
+}
+
+function renderHome(){
+  const w=plan.weeks[curWeek];
+  const ws=getDate(curWeek,0),we=getDate(curWeek,6);
+  document.getElementById('week-label').textContent=w.label+(ws?` · ${fmtShort(ws)}–${fmtShort(we)}`:'');
+  let html='';
+  for(let di=0;di<7;di++){
+    const day=w.days[di];
+    const d=getDate(curWeek,di);
+    const key=lk(curWeek,di);
+    const done=logs[key]&&logs[key].done;
+    const tod=isToday(d);
+    const past=isPast(d);
+    const wo=day.wid?plan.workouts[day.wid]:null;
+    let dc=done?'done-dot':tod?'today-dot':(day.type==='rest'?'rest':(past?'run-dot':'future-dot'));
+    let dcont=done?svgCheck():d?`<span style="font-size:13px;font-weight:600">${d.getDate()}</span>`:'?';
+    let rc=tod?' today':(done?' done':'');
+    let badge=day.type==='rest'?'<span class="day-badge badge-rest">Descanso</span>'
+      :(done?'<span class="day-badge badge-done">Feito</span>'
+      :(tod?'<span class="day-badge badge-today">Hoje</span>'
+      :'<span class="day-badge badge-run">Treino</span>'));
+    html+=`<div class="day-row${rc}" onclick="openDay(${curWeek},${di})">
+      <div class="day-dot ${dc}">${dcont}</div>
+      <div class="day-info">
+        <div class="day-name">${day.name}</div>
+        <div class="day-workout">${day.type==='rest'?'Descanso':(wo?wo.name:'Treino')}</div>
+        <div class="day-date-str">${d?fmtFull(d):''}</div>
+      </div>
+      ${badge}
+      ${svgChevronRight()}
+    </div>`;
+  }
+  document.getElementById('days-list').innerHTML=html;
+}
+
+function openDay(wi,di){
+  curDay={wi,di};
+  const day=plan.weeks[wi].days[di];
+  const key=lk(wi,di);
+  const log=logs[key]||{};
+  const d=getDate(wi,di);
+  const wo=day.wid?plan.workouts[day.wid]:null;
+  let html='';
+  if(day.type==='rest'){
+    html=`<div class="rest-view">
+      <div class="rest-icon">🌙</div>
+      <div class="rest-title">${day.name} — Descanso</div>
+      <div style="font-size:12px;color:var(--gray4);margin-top:4px">${d?fmtFull(d):''}</div>
+      <p class="rest-msg">Recuperação é parte do treino. Descanse, hidrate-se e volte mais forte!</p>
+    </div>`;
+  } else if(wo){
+    const isDone=log.done;
+    const blocks=wo.blocks.map(b=>{
+      const cls=BC[b.t]||'b-rest';
+      return`<div class="block-item ${cls}"><span class="block-label">${b.l}</span>${b.d?`<span class="block-dur">${b.d}</span>`:''}</div>`;
+    }).join('');
+    html=`<div class="workout-header-card">
+      <div class="workout-big-title">${wo.name}</div>
+      <div class="workout-date-line">${d?fmtFull(d):''}</div>
+      ${wo.desc?`<div class="workout-desc">${wo.desc}</div>`:''}
+    </div>
+    <div class="block-list">${blocks}</div>
+    <div class="log-card">
+      <div class="log-title">Registrar treino</div>
+      <div class="field-grid">
+        <div class="field-block"><div class="field-label">Pace (min/km)</div><input class="field-input" id="lp" placeholder="ex: 6:30" value="${log.pace||''}"></div>
+        <div class="field-block"><div class="field-label">Distância (km)</div><input class="field-input" id="ld" placeholder="ex: 2.5" value="${log.dist||''}"></div>
+      </div>
+      <div class="field-block" style="margin-bottom:10px"><div class="field-label" style="margin-bottom:4px">Como foi?</div>
+        <select class="field-select" id="lf">
+          <option value="">Selecione...</option>
+          <option value="Ótimo" ${log.feel==='Ótimo'?'selected':''}>Ótimo</option>
+          <option value="Bom" ${log.feel==='Bom'?'selected':''}>Bom</option>
+          <option value="Regular" ${log.feel==='Regular'?'selected':''}>Regular</option>
+          <option value="Difícil" ${log.feel==='Difícil'?'selected':''}>Difícil</option>
+        </select>
+      </div>
+      <div class="field-block"><div class="field-label" style="margin-bottom:4px">Observações</div>
+        <textarea class="field-textarea" id="ln" placeholder="Anotações livres...">${log.note||''}</textarea>
+      </div>
+    </div>
+    <button class="check-btn ${isDone?'done':'todo'}" onclick="checkDay()">
+      ${isDone?svgCheck():''}
+      ${isDone?'TREINO CONCLUÍDO':'MARCAR COMO FEITO'}
+    </button>
+    ${isDone?`<button class="undo-btn" onclick="undoDay()">Desfazer conclusão</button>`:''}`;
+  }
+  document.getElementById('day-content').innerHTML=html;
+  navTo('day');
+}
+
+function checkDay(){
+  const{wi,di}=curDay;
+  const key=lk(wi,di);
+  const d=getDate(wi,di);
+  const wo=plan.workouts[plan.weeks[wi].days[di].wid];
+  logs[key]={done:true,pace:document.getElementById('lp')?.value||'',dist:document.getElementById('ld')?.value||'',feel:document.getElementById('lf')?.value||'',note:document.getElementById('ln')?.value||'',date:d?d.toLocaleDateString('pt-BR'):'',dateISO:d?d.toISOString().slice(0,10):'',weekLabel:plan.weeks[wi].label,dayName:plan.weeks[wi].days[di].name,workoutName:wo?.name||''};
+  save();openDay(wi,di);
+}
+
+function undoDay(){
+  const{wi,di}=curDay;
+  const key=lk(wi,di);
+  if(logs[key])logs[key].done=false;
+  save();openDay(wi,di);
+}
+
+function renderHistory(){
+  const all=Object.values(logs).filter(l=>l.done).sort((a,b)=>(b.dateISO||'').localeCompare(a.dateISO||''));
+  const km=all.reduce((s,l)=>s+(parseFloat(l.dist)||0),0);
+  document.getElementById('stats-row').innerHTML=`
+    <div class="stat-box"><div class="stat-label">Treinos feitos</div><div class="stat-value">${all.length}</div></div>
+    <div class="stat-box"><div class="stat-label">Km registrados</div><div class="stat-value">${km.toFixed(1)}</div><div class="stat-sub">quilômetros</div></div>`;
+  const list=document.getElementById('history-list');
+  if(!all.length){list.innerHTML='<div class="empty-msg">Nenhum treino registrado ainda.<br>Marque seu primeiro treino!</div>';return;}
+  list.innerHTML=all.map(l=>`
+    <div class="hist-item">
+      <div class="hist-top"><div class="hist-name">${l.weekLabel} · ${l.dayName}</div><div class="hist-date">${l.date||''}</div></div>
+      <div class="hist-workout">${l.workoutName}</div>
+      <div class="hist-meta">
+        ${l.pace?`<div class="hist-kv">Pace <span>${l.pace} /km</span></div>`:''}
+        ${l.dist?`<div class="hist-kv">Distância <span>${l.dist} km</span></div>`:''}
+        ${l.feel?`<div class="hist-kv">Sensação <span>${l.feel}</span></div>`:''}
+      </div>
+      ${l.note?`<div class="hist-note">${l.note}</div>`:''}
+    </div>`).join('');
+}
+
+function renderNotif(){
+  const perm='Notification' in window?Notification.permission:'denied';
+  const active=notif.on&&perm==='granted';
+  document.getElementById('notif-content').innerHTML=`
+    <div class="notif-card">
+      <div class="notif-card-title">Lembrete de treino</div>
+      <div class="notif-status ${active?'notif-on':'notif-off'}">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+        ${active?'Notificações ativas':'Notificações desativadas'}
+      </div>
+      <div class="field-block" style="margin-bottom:12px">
+        <div class="field-label" style="margin-bottom:6px">Horário do lembrete</div>
+        <input type="time" id="notif-time" class="field-input" value="${notif.time||'07:00'}" style="color-scheme:dark;width:140px">
+      </div>
+      <p class="notif-desc">Você receberá um lembrete nos dias de treino no horário escolhido. A notificação mostra o nome do treino do dia.</p>
+      <button class="prim-btn" onclick="saveNotif()">${active?'Salvar alterações':'Ativar notificações'}</button>
+      ${active?`<button class="sec-btn" onclick="disableNotif()">Desativar notificações</button>`:''}
+    </div>
+    <div class="notif-card">
+      <div class="notif-card-title">Testar</div>
+      <p class="notif-desc">Envie uma notificação agora para confirmar que está funcionando no seu dispositivo.</p>
+      <button class="sec-btn" onclick="testNotif()" style="border:1px solid var(--gray3)">Enviar notificação teste</button>
+    </div>`;
+  const btn=document.getElementById('bell-btn');
+  if(btn)btn.style.color=active?'var(--white)':'';
+}
+
+async function saveNotif(){
+  if(!('Notification' in window)){alert('Este navegador não suporta notificações.');return;}
+  const p=await Notification.requestPermission();
+  if(p!=='granted'){alert('Permissão negada. Habilite nas configurações do navegador/sistema.');return;}
+  notif.on=true;
+  notif.time=document.getElementById('notif-time').value||'07:00';
+  save();scheduleNotif();renderNotif();
+}
+function disableNotif(){notif.on=false;save();renderNotif();}
+
+function testNotif(){
+  if(!('Notification' in window)||Notification.permission!=='granted'){alert('Ative as notificações primeiro.');return;}
+  const wo=getTodayWorkout();
+  new Notification('CORRERIA 🏃',{body:wo?`Hoje: ${wo.name} — Bora lá!`:'Confira seu plano de treino hoje!'});
+}
+
+function getTodayWorkout(){
+  if(!startDate)return null;
+  const today=new Date();today.setHours(0,0,0,0);
+  for(let wi=0;wi<plan.weeks.length;wi++){
+    for(let di=0;di<7;di++){
+      const d=getDate(wi,di);if(!d)continue;
+      const dd=new Date(d);dd.setHours(0,0,0,0);
+      if(dd.getTime()===today.getTime()){
+        const day=plan.weeks[wi].days[di];
+        return day.wid?plan.workouts[day.wid]:null;
+      }
+    }
+  }
+  return null;
+}
+
+function scheduleNotif(){
+  if(!notif.on||!('Notification' in window)||Notification.permission!=='granted')return;
+  const[hh,mm]=(notif.time||'07:00').split(':').map(Number);
+  const now=new Date(),target=new Date();
+  target.setHours(hh,mm,0,0);
+  if(target<=now)target.setDate(target.getDate()+1);
+  setTimeout(()=>{
+    const wo=getTodayWorkout();
+    if(wo)new Notification('CORRERIA 🏃',{body:`Hoje: ${wo.name} — Bora lá!`});
+    scheduleNotif();
+  },target-now);
+}
+
+function renderEdit(){
+  let html='';
+  plan.weeks.forEach((week,wi)=>{
+    const ws=getDate(wi,0),we=getDate(wi,6);
+    html+=`<div class="section-head">
+      <div class="section-title">${week.label}${ws?` · ${fmtShort(ws)}–${fmtShort(we)}`:''}</div>
+      ${plan.weeks.length>1?`<button class="del-sm-btn" onclick="delWeek(${wi})" aria-label="Remover semana">${svgTrash()}</button>`:''}
+    </div>`;
+    week.days.forEach((day,di)=>{
+      const d=getDate(wi,di);
+      const wOpts=Object.keys(plan.workouts).map(wid=>`<option value="${wid}" ${day.wid===wid?'selected':''}>${plan.workouts[wid].name}</option>`).join('');
+      html+=`<div class="edit-card">
+        <div class="edit-row">
+          <div class="edit-label">${day.name}${d?` (${fmtShort(d)})`:''}</div>
+          <select class="edit-select" onchange="setDayType(${wi},${di},this.value)">
+            <option value="run" ${day.type==='run'?'selected':''}>Treino</option>
+            <option value="rest" ${day.type==='rest'?'selected':''}>Descanso</option>
+          </select>
+        </div>
+        ${day.type==='run'?`<div class="edit-row"><div class="edit-label">Treino</div><select class="edit-select" onchange="setDayWo(${wi},${di},this.value)">${wOpts}</select></div>`:''}
+      </div>`;
+    });
+  });
+  html+=`<button class="add-week-btn" onclick="addWeek()">${svgPlus()} Adicionar semana</button>`;
+  html+=`<div class="section-head" style="margin-top:12px"><div class="section-title">Treinos</div></div>`;
+  Object.keys(plan.workouts).forEach(wid=>{
+    const wo=plan.workouts[wid];
+    html+=`<div class="edit-card">
+      <div class="edit-row"><div class="edit-label">Nome</div><input class="edit-input" value="${wo.name}" onchange="updWo('${wid}','name',this.value)"></div>
+      <div class="edit-row"><div class="edit-label">Descrição</div><input class="edit-input" value="${wo.desc||''}" onchange="updWo('${wid}','desc',this.value)"></div>
+      <div style="font-size:11px;color:var(--gray4);text-transform:uppercase;letter-spacing:0.05em;margin:8px 0 6px">Blocos</div>
+      <div id="blks-${wid}">`+
+      wo.blocks.map((b,bi)=>`<div class="blk-row">
+        <input class="blk-input" value="${b.l}" onchange="updBlk('${wid}',${bi},'l',this.value)" placeholder="Descrição">
+        <input class="blk-input" value="${b.d||''}" onchange="updBlk('${wid}',${bi},'d',this.value)" placeholder="Duração">
+        <button class="del-btn" onclick="delBlk('${wid}',${bi})">${svgX()}</button>
+      </div>`).join('')+
+      `</div><button class="add-block-btn" onclick="addBlk('${wid}')">${svgPlus(14)} Adicionar bloco</button>
+    </div>`;
+  });
+  html+=`<button class="add-week-btn" onclick="addWo()">${svgPlus()} Novo treino</button>
+  <div style="margin-top:12px;padding:14px;background:var(--gray1);border:1px solid var(--gray2);border-radius:var(--r)">
+    <div style="font-size:12px;color:var(--gray4);margin-bottom:8px">Data de início do plano</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input type="date" id="edit-start-date" class="edit-input" value="${startDate||''}" style="color-scheme:dark;flex:1">
+      <button onclick="changeStartDate()" style="padding:7px 12px;background:var(--white);color:var(--black);border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Salvar</button>
+    </div>
+  </div>`;
+  document.getElementById('edit-content').innerHTML=html;
+}
+
+function changeStartDate(){const v=document.getElementById('edit-start-date').value;if(!v)return;startDate=v;localStorage.setItem('correria_start',v);renderEdit();renderHome();}
+function setDayType(wi,di,v){plan.weeks[wi].days[di].type=v;if(v==='rest')delete plan.weeks[wi].days[di].wid;else if(!plan.weeks[wi].days[di].wid)plan.weeks[wi].days[di].wid=Object.keys(plan.workouts)[0];save();renderEdit();}
+function setDayWo(wi,di,wid){plan.weeks[wi].days[di].wid=wid;save();}
+function updWo(wid,f,v){plan.workouts[wid][f]=v;save();}
+function updBlk(wid,bi,f,v){plan.workouts[wid].blocks[bi][f]=v;save();}
+function delBlk(wid,bi){plan.workouts[wid].blocks.splice(bi,1);save();renderEdit();}
+function addBlk(wid){plan.workouts[wid].blocks.push({t:'corrida',l:'Novo bloco',d:''});save();renderEdit();}
+function addWo(){const id='w'+Date.now();plan.workouts[id]={name:'Novo treino',desc:'',blocks:[{t:'aquecimento',l:'Aquecimento',d:'5 min'}]};save();renderEdit();}
+function addWeek(){
+  const n=plan.weeks.length+1;
+  plan.weeks.push({label:'Semana '+n,days:['Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo'].map((name,i)=>({name,type:i%2===0&&i<5?'run':'rest',wid:i%2===0&&i<5?Object.keys(plan.workouts)[0]:undefined}))});
+  save();renderEdit();
+}
+function delWeek(wi){if(!confirm('Remover esta semana?'))return;plan.weeks.splice(wi,1);if(curWeek>=plan.weeks.length)curWeek=plan.weeks.length-1;save();renderEdit();}
+
+function svgCheck(){return`<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.5"><polyline points="20 6 9 17 4 12"/></svg>`;}
+function svgChevronRight(){return`<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--gray4);fill:none;stroke-width:2;flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>`;}
+function svgPlus(s=15){return`<svg viewBox="0 0 24 24" style="width:${s}px;height:${s}px;stroke:currentColor;fill:none;stroke-width:2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;}
+function svgX(){return`<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;}
+function svgTrash(){return`<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;}
+
+// INIT
+document.getElementById('setup-date-in').value=new Date().toISOString().slice(0,10);
+if(startDate){
+  document.getElementById('screen-setup').style.display='none';
+  document.getElementById('app-wrap').style.display='flex';
+  findCurWeek();
+  renderHome();
+  if(notif.on)scheduleNotif();
+}
+</script>
+
+<!-- PWA Manifest inline -->
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./service-worker.js')
+    .then(() => console.log('Service Worker do Correria ativo!'))
+    .catch(err => console.log('Erro ao registrar SW:', err));
+}
+</script>
+</body>
+</html>
+HTMLEOF
+echo "Done: $(wc -c < /mnt/user-data/outputs/correria.html) bytes"
+Saída
+
+Done: 44916 bytes
